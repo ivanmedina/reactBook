@@ -1,0 +1,82 @@
+version: '3'
+
+services:
+
+#   frontend:
+#     container_name: sample
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#     volumes:
+#       - '.:/app'
+#       - '/app/node_modules'
+#     ports:
+#       - 3000:3000
+# #    environment:
+# #      - CHOKIDAR_USEPOLLING=true
+#     stdin_open: true
+#     networks:
+#       - mysql_net
+#     depends_on:
+#      - db
+
+#   backend:
+#     image: webdevops/php-apache:alpine-php7
+#     container_name: php_p1
+#     ports:
+#       - 4500:80
+#     volumes:
+#       - ./backend/www:/app
+#     links:
+#      - db
+#     networks:
+#       - mysql_net
+#     depends_on:
+#      - db
+
+  production:
+    container_name: reactBook
+    build: 
+      context: .
+      dockerfile: Dockerfile.prod
+    networks:
+      - mysql_net
+    
+  db:
+    image: mysql
+    container_name: mysql_p1
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - ./backend/db/initdb:/docker-entrypoint-initdb.d/:ro
+      - ./backend/db/data:/var/lib/mysql  
+    networks:
+      - mysql_net
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin_p1
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - 8088:80
+    links:
+     - db
+    networks:
+      - mysql_net
+    depends_on:
+     - db
+
+
+
+
+
+
+
+
+
+networks:
+  mysql_net:
+    driver: bridge
